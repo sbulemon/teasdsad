@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Auto Bone Animation</title>
+  <style>
+    body { margin: 0; background: #111; }
+    canvas { display: block; margin: auto; background: #222; }
+    #upload { position: absolute; top: 10px; left: 10px; z-index: 10; }
+  </style>
+</head>
+<body>
+  <input type="file" id="upload" accept="image/*">
+  <canvas id="canvas" width="800" height="800"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const upload = document.getElementById('upload');
+    let image = new Image();
+    let angle = 0;
+    let direction = 1;
+
+    upload.addEventListener('change', e => {
+      const reader = new FileReader();
+      reader.onload = evt => {
+        image.onload = () => requestAnimationFrame(draw);
+        image.src = evt.target.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    });
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Set origin to "shoulder"
+      ctx.save();
+      const x = canvas.width / 2;
+      const y = canvas.height / 2;
+      ctx.translate(x, y);
+
+      // Rotate the arm (simulate bone animation)
+      ctx.rotate(Math.sin(angle) * 0.5);
+      if (image.src) {
+        ctx.drawImage(image, -50, 0, 100, 200); // draw "arm"
+      }
+      ctx.restore();
+
+      angle += 0.05 * direction;
+
+      requestAnimationFrame(draw);
+    }
+  </script>
+</body>
+</html>
