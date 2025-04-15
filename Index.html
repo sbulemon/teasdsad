@@ -1,54 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Auto Bone Animation</title>
   <style>
-    body { margin: 0; background: #111; }
+    body { margin: 0; background: #111; color: white; font-family: sans-serif; }
     canvas { display: block; margin: auto; background: #222; }
-    #upload { position: absolute; top: 10px; left: 10px; z-index: 10; }
+    #controls { position: absolute; top: 10px; left: 10px; z-index: 10; background: #333; padding: 10px; border-radius: 8px; }
+    label { display: block; margin: 5px 0; }
   </style>
 </head>
 <body>
-  <input type="file" id="upload" accept="image/*">
+  <div id="controls">
+    <input type="file" id="upload" accept="image/*"><br>
+    <label><input type="checkbox" id="leftArm" checked> Animate Left Arm</label>
+    <label><input type="checkbox" id="rightArm" checked> Animate Right Arm</label>
+    <label><input type="checkbox" id="head" checked> Animate Head</label>
+  </div>
   <canvas id="canvas" width="800" height="800"></canvas>
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const upload = document.getElementById('upload');
-    let image = new Image();
-    let angle = 0;
-    let direction = 1;
+    const leftArmCheckbox = document.getElementById('leftArm');
+    const rightArmCheckbox = document.getElementById('rightArm');
+    const headCheckbox = document.getElementById('head');let image = new Image();
+let angle1 = 0;
+let angle2 = 0;
+let angleHead = 0;
 
-    upload.addEventListener('change', e => {
-      const reader = new FileReader();
-      reader.onload = evt => {
-        image.onload = () => requestAnimationFrame(draw);
-        image.src = evt.target.result;
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    });
+upload.addEventListener('change', e => {
+  const reader = new FileReader();
+  reader.onload = evt => {
+    image.onload = () => requestAnimationFrame(draw);
+    image.src = evt.target.result;
+  };
+  reader.readAsDataURL(e.target.files[0]);
+});
 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Set origin to "shoulder"
-      ctx.save();
-      const x = canvas.width / 2;
-      const y = canvas.height / 2;
-      ctx.translate(x, y);
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
 
-      // Rotate the arm (simulate bone animation)
-      ctx.rotate(Math.sin(angle) * 0.5);
-      if (image.src) {
-        ctx.drawImage(image, -50, 0, 100, 200); // draw "arm"
-      }
-      ctx.restore();
+  // Animate left arm
+  if (leftArmCheckbox.checked) {
+    ctx.save();
+    ctx.translate(cx - 100, cy);
+    ctx.rotate(Math.sin(angle1) * 0.5);
+    if (image.src) ctx.drawImage(image, -50, 0, 100, 200);
+    ctx.restore();
+  }
 
-      angle += 0.05 * direction;
+  // Animate right arm
+  if (rightArmCheckbox.checked) {
+    ctx.save();
+    ctx.translate(cx + 100, cy);
+    ctx.rotate(-Math.sin(angle2) * 0.5);
+    if (image.src) ctx.drawImage(image, -50, 0, 100, 200);
+    ctx.restore();
+  }
 
-      requestAnimationFrame(draw);
-    }
+  // Animate head
+  if (headCheckbox.checked) {
+    ctx.save();
+    ctx.translate(cx, cy - 150);
+    ctx.rotate(Math.sin(angleHead) * 0.3);
+    if (image.src) ctx.drawImage(image, -40, -40, 80, 80);
+    ctx.restore();
+  }
+
+  // Draw body (static)
+  ctx.save();
+  ctx.translate(cx, cy);
+  if (image.src) ctx.drawImage(image, -50, -100, 100, 200);
+  ctx.restore();
+
+  angle1 += 0.05;
+  angle2 += 0.04;
+  angleHead += 0.03;
+
+  requestAnimationFrame(draw);
+}
+
   </script>
 </body>
 </html>
